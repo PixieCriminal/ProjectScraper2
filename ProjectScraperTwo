@@ -1,0 +1,44 @@
+from selenium import webdriver
+from bs4 import BeautifulSoup
+import time
+import csv
+
+START_URL = "https://en.wikipedia.org/wiki/List_of_brown_dwarfs"
+browser = webdriver.Chrome("C:/Users/sahas/Downloads/chromedriver_win32/chromedriver")
+browser.get(START_URL)
+time.sleep(10)
+planet_data_list = [] 
+
+def scrape():
+    constellation_index = 1
+    distance_index = 5
+    mass_index = 8
+    radius_index = 9
+    soup = BeautifulSoup(browser.page_source,"html.parser")
+    count = 0
+    
+    for table_tag in soup.find_all("table", attrs = {"class", "wikitable"}):
+        count = count+1
+        if(count == 1):
+            for tr_tag in table_tag.find_all("tr"):
+                td_tags = tr_tag.find_all("td")
+                temp_data_list = []
+                index = 0
+                for td_tag in td_tags:
+                    if(index == constellation_index):
+                        temp_data_list.append(td_tag.text.strip())              
+                    if(index == distance_index):
+                        temp_data_list.append(td_tag.text.strip())
+                    if(index == mass_index):
+                        temp_data_list.append(td_tag.text.strip())
+                    if(index == radius_index):
+                        temp_data_list.append(td_tag.text.strip())
+                    index = index+1
+                planet_data_list.append(temp_data_list)  
+
+scrape()
+headers = ["constellation", "distance", "mass", "radius"]
+with open("StarData.csv", "w")as f:
+    csvwriter = csv.writer(f)
+    csvwriter.writerow(headers)
+    csvwriter.writerows(planet_data_list)
